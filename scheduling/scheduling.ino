@@ -16,13 +16,17 @@ int temp = 0;
 
 void startTask1(void *parameter)
 {
-  number = 0;
   while(1)
   {
-    while(Serial.available()>0)
+    number = 0;
+    vTaskDelay(1000/portTICK_PERIOD_MS);
+    int i = Serial.available();
+    
+    while(i>0)
     {
       temp = Serial.read() - '0';
-      number += temp*pow(10,Serial.available());
+      number += temp*pow(10,i-1);
+      i--;
     }
 
     Serial.print("Updated LED delay to: ");
