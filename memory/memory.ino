@@ -4,51 +4,49 @@ static const BaseType_t app_cpu = 0;
 static const BaseType_t app_cpu = 1;
 #endif 
 
-void TestTask(void *paramter)
+static TaskHandle_t task_1 = NULL;
+static TaskHandle_t task_2 = NULL;
+char *ptr;
+int i = 0;
+
+void TaskA(void *paramter)
 {
   while(1)
   {
-    int a = 1;
-    int b[100];
-
-    for(int i=0;i<100;i++)
+    vTaskDelay(2000/portTICK_PERIOD_MS);
+    if(Serial.available()>0)
     {
-      b[i] = a+i;
-    }
+      i = Serial.available();
+      
+      ptr = (char*)pvPortMalloc(i*sizeof(char));
 
-    Serial.println(b[0]);
-
-    //Print out remaining stack memory 
-    Serial.print("High water mark(words):");
-    Serial.println(uxTaskGetStackHighWaterMark(NULL));
-
-
-    //Print out number of free heap memory bytes before malloc
-    Serial.print("Heap before malloc(bytes):");
-    Serial.println(xPortGetFreeHeapSize());
-
-    int *ptr = (int*)pvPortMalloc(1024*sizeof(int));
-
-    if(ptr==NULL)
-    {
-      Serial.println("Not enough heap.");
-    }
-    else
-    {
-      for(int i=0;i<1024;i++)
+      for(int j=0;j<i;j++)
       {
-        *(ptr+i) = 3;
+        *(ptr+j) = Serial.read();
       }
+
+      vTaskResume(task_2);
+    }
+  }
+}
+
+void TaskB(void *paramter)
+{
+  while(1)
+  {
+    for(int j=0;j<i;j++)
+    {
+      Serial.print(*(ptr+j));
     }
 
-    //Print out number of free heap memory bytes after malloc
-    Serial.print("Heap after malloc(bytes):");
-    Serial.println(xPortGetFreeHeapSize());
+    Serial.println();
 
-    //Free up allocated memory
     vPortFree(ptr);
+    ptr = NULL;
 
-    vTaskDelay(100/portTICK_PERIOD_MS);
+    Serial.println("Enter a string");
+
+    vTaskSuspend(task_2);
   }
 }
 
@@ -57,13 +55,20 @@ void setup() {
 
   vTaskDelay(1000/portTICK_PERIOD_MS);
 
+  Serial.print("freeRTOS Heap Demo");
   Serial.println("--------------------");
+
+  Serial.println("Enter a string");
   
-  xTaskCreatePinnedToCore(TestTask,"Test Task",1500,NULL,1,NULL,app_cpu);
+  xTaskCreatePinnedToCore(TaskA,"TaskA",2000,NULL,2,&task_1,app_cpu);
+  xTaskCreatePinnedToCore(TaskB,"TaskB",2000,NULL,1,&task_2,app_cpu);
 
 
+  vTaskSuspend(task_2);
+  
   //Delete setup and loop
   vTaskDelete(NULL);
+
 }
 
 void loop() {

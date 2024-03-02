@@ -32,3 +32,8 @@ HEAP:
 
 -> TCB is a struct that maintains information such as the location of the stack and the task's priority level.   
   
+  
+ Points to note: 
+ If the memory allocation occurs within a function and the compiler determines that the memory is not needed beyond the function's scope, it may allocate memory on the stack instead of the heap. Stack memory is typically faster to allocate and deallocate compared to heap memory. 
+ 
+ 
