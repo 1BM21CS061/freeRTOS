@@ -1,0 +1,7 @@
+-> using global variables to control one task from another is not a safe approach. 
+
+-> queue is used to ensure that data that is written by tasks is written correctly. 
+
+-> queue has global scope so that any task can access it and write it's own data to it. 
+
+-> another task asynchronously reads data from the queue
