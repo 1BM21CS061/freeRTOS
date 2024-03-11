@@ -21,3 +21,5 @@
    The final value of the shared variable depends on the order in which Thread A and Thread B execute their operations. 
   
    If Thread A's modification is overwritten by Thread B's modification, the final value will be different from what Thread A intended.
+   
+ -> Using a queue's atomic operations processes get controlled access to the queue's messages and hence there is no illegal accesses to processes and race conditions are avoided.
