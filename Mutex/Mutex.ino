@@ -17,8 +17,6 @@ void blinkLED(void *parameters) {
 
   xSemaphoreGive(mutex);
 
-  Serial.println("check2");
-
   // Configure the LED pin
   pinMode(2, OUTPUT);
 
